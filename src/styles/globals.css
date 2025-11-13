@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light dark;
+  --background: #ffffff;
+  --foreground: #171717;
+  --brand-main: #1089ff;
+  --brand-main-bg: #1089ff1a;
+  --brand-secondary: #c2000b;
+  --brand-light-bg: #f9fafb;
+  --brand-black: #1e1e1e;
+  --brand-white: #ffffff;
+  --brand-ash: #757575;
+  --brand-success-bg: #22c55e26;
+  --brand-success-text: #22c55e;
+  --brand-failed-bg: #dc262626;
+  --brand-failed-text: #dc2626;
+  --brand-pending-bg: #facc1526;
+  --brand-pending-text: #facc15;
+  --brand-border-light: #e5e7eb;
+  --brand-border-dark: #374151;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand-main: var(--brand-main);
+  --color-brand-main-bg: var(--brand-main-bg);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-light-bg: var(--brand-light-bg);
+  --color-brand-black: var(--brand-black);
+  --color-brand-white: var(--brand-white);
+  --color-brand-ash: var(--brand-ash);
+  --color-brand-success-bg: var(--brand-success-bg);
+  --color-brand-success-text: var(--brand-success-text);
+  --color-brand-failed-bg: var(--brand-failed-bg);
+  --color-brand-failed-text: var(--brand-failed-text);
+  --color-brand-pending-bg: var(--brand-pending-bg);
+  --color-brand-pending-text: var(--brand-pending-text);
+  --color-brand-border-light: var(--brand-border-light);
+  --color-brand-border-dark: var(--brand-border-dark);
+
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* @media (prefers-color-scheme: dark) { */
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+    --brand-main: #110b79;
+    --brand-secondary: #c2000b;
+    --brand-ash: #e4e4e4;
+    --brand-white: #ffffff;
+    --brand-black: #000000;
+    --brand-main-bg: #110b791a;
+    --brand-success-bg: #22c55e26;
+    --brand-success-text: #22c55e;
+    --brand-failed-bg: #dc262626;
+    --brand-failed-text: #dc2626;
+    --brand-pending-bg: #facc1526;
+    --brand-pending-text: #facc15;
+    --brand-border-light: #e5e7eb;
+    --brand-border-dark: #374151;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(
+    --font-geist-sans,
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif
+  );
+  -webkit-font-smoothing: antialiased;
+}
+
+/* misc styles */
+.glass-fx {
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  /* background-color: #ffffff40; */
+  background-color: #00000020;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.transition-fx {
+  transition: all 300ms ease-in-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-brand-main rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-brand-main/80;
+}
