@@ -7,6 +7,7 @@ import {
   LogOutIcon,
   ReceiptTextIcon,
   Settings,
+  Users,
 } from "lucide-react";
 import { useRouter } from "next/router";
 
@@ -17,6 +18,7 @@ const navigationLinks = [
     href: "/dashboard/transactions",
     icon: ReceiptTextIcon,
   },
+  { name: "Partners", href: "/dashboard/partners", icon: Users },
   { name: "Support", href: "/dashboard/support", icon: HeadsetIcon },
   { name: "Notifications", href: "/dashboard/notifications", icon: BellIcon },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },

@@ -3,15 +3,23 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Check, ChevronDown } from "lucide-react";
 
 import type { TransactionStatus } from "@/components/TransactionTable";
+import type { PartnerStatus } from "@/components/PartnersTable";
 
-export type StatusFilterDropdownValue = "all" | TransactionStatus;
+export type StatusFilterDropdownValue =
+  | "all"
+  | TransactionStatus
+  | PartnerStatus;
 
 export type StatusFilterDropdownProps = {
   value: StatusFilterDropdownValue;
   onChange: (value: StatusFilterDropdownValue) => void;
+  options?: Array<{
+    label: string;
+    value: StatusFilterDropdownValue;
+  }>;
 };
 
-const STATUS_OPTIONS: Array<{
+const DEFAULT_TRANSACTION_OPTIONS: Array<{
   label: string;
   value: StatusFilterDropdownValue;
 }> = [
@@ -21,9 +29,20 @@ const STATUS_OPTIONS: Array<{
   { label: "Failed", value: "Failed" },
 ];
 
+const PARTNER_STATUS_OPTIONS: Array<{
+  label: string;
+  value: StatusFilterDropdownValue;
+}> = [
+  { label: "All Status", value: "all" },
+  { label: "Active", value: "Active" },
+  { label: "Suspended", value: "Suspended" },
+  { label: "Inactive", value: "Inactive" },
+];
+
 export const StatusFilterDropdown = ({
   value,
   onChange,
+  options = DEFAULT_TRANSACTION_OPTIONS,
 }: StatusFilterDropdownProps) => {
   const handleSelect = React.useCallback(
     (nextValue: StatusFilterDropdownValue) => {
@@ -33,15 +52,14 @@ export const StatusFilterDropdown = ({
   );
 
   const selectedLabel =
-    STATUS_OPTIONS.find((option) => option.value === value)?.label ??
-    STATUS_OPTIONS[0].label;
+    options.find((option) => option.value === value)?.label ?? options[0].label;
 
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
           type="button"
-          className="transition-fx flex items-center gap-2 rounded-lg border border-brand-border-light bg-brand-light-bg px-3 py-2 text-xs font-medium text-brand-black hover:border-brand-main hover:text-brand-main"
+          className="transition-fx flex cursor-pointer items-center gap-2 rounded-lg border border-brand-border-light bg-brand-light-bg px-3 py-2 text-xs font-medium text-brand-black hover:border-brand-main hover:text-brand-main"
         >
           {selectedLabel}
           <ChevronDown className="h-3 w-3" />
@@ -53,7 +71,7 @@ export const StatusFilterDropdown = ({
           sideOffset={8}
           className="w-44 rounded-lg border border-brand-border-light bg-brand-white p-2 shadow-lg focus:outline-none"
         >
-          {STATUS_OPTIONS.map((option) => (
+          {options.map((option) => (
             <DropdownMenu.Item
               key={option.value}
               onSelect={(event) => {
@@ -73,3 +91,5 @@ export const StatusFilterDropdown = ({
     </DropdownMenu.Root>
   );
 };
+
+export { PARTNER_STATUS_OPTIONS };
