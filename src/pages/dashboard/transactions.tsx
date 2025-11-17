@@ -15,7 +15,10 @@ import {
   partnerTransactions,
   customerTransactions,
 } from "@/api/transactions/transactions.mock";
-import { StatusFilterDropdown } from "@/components/StatusFilterDropdown";
+import {
+  StatusFilterDropdown,
+  type StatusFilterDropdownValue,
+} from "@/components/StatusFilterDropdown";
 import {
   DateRangeFilterDropdown,
   type DateRangeFilterValue,
@@ -39,6 +42,18 @@ const TransactionsPage: NextPageWithLayout = () => {
   const [dateFilter, setDateFilter] = React.useState<DateRangeFilterValue>({
     preset: "last_12_months",
   });
+
+  const handleStatusFilterChange = React.useCallback(
+    (value: StatusFilterDropdownValue) => {
+      if (value === "Active" || value === "Suspended" || value === "Inactive") {
+        // Partner statuses are not applicable for transactions
+        return;
+      }
+      setStatusFilter(value);
+    },
+    []
+  );
+
   const handleReportIssue = React.useCallback(
     (transaction: Transaction | CustomerTransaction) => {
       console.info("Report issue for transaction:", transaction.id);
@@ -156,7 +171,7 @@ const TransactionsPage: NextPageWithLayout = () => {
           <div className="flex flex-wrap items-center gap-2">
             <StatusFilterDropdown
               value={statusFilter}
-              onChange={setStatusFilter}
+              onChange={handleStatusFilterChange}
             />
           </div>
 

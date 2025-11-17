@@ -183,7 +183,7 @@ export const DateRangeFilterDropdown = ({
                 numberOfMonths={2}
                 selected={pendingRange}
                 onSelect={setPendingRange}
-                captionLayout="dropdown-buttons"
+                captionLayout="dropdown"
                 className="text-brand-black"
                 styles={{
                   caption: { color: "var(--brand-black)" },

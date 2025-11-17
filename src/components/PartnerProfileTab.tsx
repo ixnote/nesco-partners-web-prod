@@ -30,7 +30,7 @@ export const PartnerProfileTab = ({
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 border-t border-brand-border-light pt-6 sm:grid-cols-2">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-brand-ash" />

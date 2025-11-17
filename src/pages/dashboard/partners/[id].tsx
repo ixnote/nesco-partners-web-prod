@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   BarChart3,
   Calendar,
+  ChevronLeft,
   Copy,
   Mail,
   MapPin,
@@ -58,7 +59,7 @@ const PartnersDetailPage: NextPageWithLayout = () => {
             onClick={handleBack}
             className="cursor-pointer rounded-lg p-2 text-brand-ash transition-fx hover:bg-brand-light-bg hover:text-brand-black"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ChevronLeft className="h-6 w-6" />
           </button>
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-semibold text-brand-black">
@@ -74,7 +75,7 @@ const PartnersDetailPage: NextPageWithLayout = () => {
           <button
             type="button"
             onClick={() => setActiveTab("profile")}
-            className={`transition-fx relative flex cursor-pointer flex-col items-center gap-1 px-4 py-3 ${
+            className={`transition-fx relative flex cursor-pointer items-end gap-1 px-4 py-3 ${
               activeTab === "profile"
                 ? "text-brand-main"
                 : "text-brand-ash hover:text-brand-black"

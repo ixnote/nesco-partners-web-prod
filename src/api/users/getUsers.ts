@@ -37,6 +37,6 @@ export const getUsersKey = (params?: UseGetUsersParams) =>
   });
 
 export const useGetUsers = (params?: UseGetUsersParams) =>
-  useSWR<UsersResponseDTO>(getUsersKey(params), (url) => fetchUsers(url));
-
-
+  useSWR<UsersResponseDTO>(getUsersKey(params), (url: string) =>
+    fetchUsers(url)
+  );
