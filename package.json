@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20.0.0",
+    "node": "23.0.0",
     "npm": ">=10.0.0"
   },
   "scripts": {
@@ -11,7 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "pnpm install && pnpm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
