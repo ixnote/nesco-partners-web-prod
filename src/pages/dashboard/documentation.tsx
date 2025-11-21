@@ -390,10 +390,11 @@ const DocumentationPage: NextPageWithLayout = () => {
                         Path Parameters
                       </h3>
                       <div className="rounded-lg border border-brand-border-light bg-brand-light-bg p-4 space-y-3">
-                        {selectedEndpoint.path
+                          {selectedEndpoint.path
                           .match(/\{([^}]+)\}/g)
                           ?.map((param, index) => {
                             const paramName = param.replace(/[{}]/g, "");
+                            const exampleValue = paramName === "meterNumber" ? "0101235035983" : undefined;
                             return (
                               <div key={index} className="flex items-start gap-3">
                                 <code className="text-sm font-mono text-brand-main bg-brand-white px-2 py-1 rounded border border-brand-border-light">
@@ -402,6 +403,11 @@ const DocumentationPage: NextPageWithLayout = () => {
                                 <div className="flex-1">
                                   <p className="text-sm text-brand-black">
                                     The {paramName.replace(/_/g, " ")} to retrieve information for
+                                    {exampleValue && (
+                                      <span className="block mt-1 text-xs text-brand-ash">
+                                        Only use this meter number for tests: <code className="font-mono text-brand-black">{exampleValue}</code>
+                                      </span>
+                                    )}
                                   </p>
                                 </div>
                               </div>
