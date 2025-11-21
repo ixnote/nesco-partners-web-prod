@@ -41,14 +41,21 @@ const mockEndpoints: ApiEndpoint[] = [
       },
       {
         status: 200,
-        description: "Success - Vending status retrieved",
+        description: "Success - Vending status check passed",
         example: {
           success: true,
-          message: "Vending status retrieved successfully",
+          message: "Vending status check passed: ",
           data: {
-            status: "active",
-            // Mock response - will be updated when actual response is provided
+            date: "2025-11-21 15:26:38",
           },
+        },
+      },
+      {
+        status: 500,
+        description: "Internal Server Error - Vending service unavailable",
+        example: {
+          success: false,
+          message: "Vending service unavailable",
         },
       },
     ],
@@ -150,6 +157,14 @@ const mockEndpoints: ApiEndpoint[] = [
         example: {
           success: false,
           message: "Partner API key is required",
+        },
+      },
+      {
+        status: 404,
+        description: "Not Found - Meter not found",
+        example: {
+          success: false,
+          message: "Meter not found",
         },
       },
       {
