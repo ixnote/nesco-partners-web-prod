@@ -1,5 +1,6 @@
 import Head from "next/head";
 import * as React from "react";
+import { useRouter } from "next/router";
 import { Search, X, Loader2 } from "lucide-react";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
@@ -21,6 +22,7 @@ const getInitials = (name: string) => {
 };
 
 const NotificationsPage: NextPageWithLayout = () => {
+  const router = useRouter();
   const { refetchProfile } = useProfile();
   const [filter, setFilter] = React.useState<NotificationFilter>("all");
   const [selectedNotification, setSelectedNotification] = React.useState<Notification | null>(null);
@@ -45,6 +47,12 @@ const NotificationsPage: NextPageWithLayout = () => {
     return null;
   }, []);
 
+  // Get notification ID from query params
+  const notificationIdFromQuery = React.useMemo(() => {
+    const id = router.query.id;
+    return id ? String(id) : null;
+  }, [router.query.id]);
+
   // Fetch notifications
   const fetchNotifications = React.useCallback(async () => {
     if (!token) return;
@@ -66,8 +74,20 @@ const NotificationsPage: NextPageWithLayout = () => {
         nextPage: result.data.data.pagination.nextPage,
       });
       
-      // Select first notification if available and none selected
+      // Select notification based on query param or first notification if available
       setSelectedNotification((prev) => {
+        // If we have a query param with notification ID, select that notification
+        if (notificationIdFromQuery) {
+          const notificationToSelect = mapped.find(
+            (n) => String(n.apiId) === notificationIdFromQuery
+          );
+          if (notificationToSelect) {
+            // Clear the query param after selecting
+            router.replace("/dashboard/notifications", undefined, { shallow: true });
+            return notificationToSelect;
+          }
+        }
+        // Otherwise, select first notification if none selected
         if (!prev && mapped.length > 0) {
           return mapped[0];
         }
@@ -79,7 +99,7 @@ const NotificationsPage: NextPageWithLayout = () => {
     }
 
     setIsLoading(false);
-  }, [token, currentPage]);
+  }, [token, currentPage, notificationIdFromQuery, router]);
 
   React.useEffect(() => {
     fetchNotifications();

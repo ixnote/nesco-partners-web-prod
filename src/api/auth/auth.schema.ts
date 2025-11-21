@@ -91,7 +91,15 @@ export const profileDataSchema = z.object({
   isActive: z.number(),
   isSuspended: z.number(),
   notification_count: z.number(),
-  account_mode: z.enum(["sandbox", "live"]),
+  account_mode: z.preprocess(
+    (val) => {
+      // Handle null, undefined, or convert to string
+      if (val == null) return "sandbox";
+      const str = String(val).toLowerCase().trim();
+      return str === "sandbox" || str === "live" ? str : "sandbox";
+    },
+    z.union([z.literal("sandbox"), z.literal("live")])
+  ),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),

@@ -34,11 +34,16 @@ export const getProfile = async (token: string): Promise<ProfileResult> => {
     
     // Wrap Zod parsing in try-catch to handle schema validation errors
     try {
+      // Log the actual account_mode value for debugging
+      if (payload?.data?.account_mode) {
+        console.log("Received account_mode value:", JSON.stringify(payload.data.account_mode), "Type:", typeof payload.data.account_mode);
+      }
       const parsed = profileResponseSchema.parse(payload);
       return { success: true, data: parsed };
     } catch (parseError) {
       // If schema validation fails, log it but don't crash
       console.error("Profile schema validation error:", parseError);
+      console.error("Received payload:", JSON.stringify(payload, null, 2));
       return {
         success: false,
         error: "Invalid profile data format received",
