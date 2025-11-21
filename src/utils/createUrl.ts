@@ -4,13 +4,39 @@ type QueryValue = string | number | boolean | null | undefined;
 
 type QueryParams = Record<string, QueryValue | QueryValue[]>;
 
+/**
+ * Get the API base URL
+ * Priority:
+ * 1. NEXT_PUBLIC_API_BASE_URL from process.env (build-time)
+ * 2. Runtime injected value from window (for Heroku)
+ * 3. DEFAULT_BASE_URL (fallback)
+ * 
+ * Note: In Next.js, NEXT_PUBLIC_* env vars are embedded at BUILD time.
+ * If not set during build, we need runtime injection via _document.tsx
+ */
 const getBaseUrl = () => {
-  if (process.env.NEXT_PUBLIC_API_BASE_URL && process.env.NEXT_PUBLIC_API_BASE_URL.length > 0) {
-    return process.env.NEXT_PUBLIC_API_BASE_URL;
+  // Check for build-time env var (Next.js replaces this at build time)
+  // On client side, process.env.NEXT_PUBLIC_* is available but replaced at build time
+  if (typeof process !== "undefined" && process.env?.NEXT_PUBLIC_API_BASE_URL) {
+    const buildTimeEnv = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (buildTimeEnv && buildTimeEnv.length > 0) {
+      return buildTimeEnv;
+    }
   }
 
-  if (typeof window !== "undefined" && window.location?.origin) {
-    return window.location.origin;
+  // Check for runtime injection (for Heroku/post-build env vars)
+  // This will be set by _document.tsx script tag
+  if (typeof window !== "undefined") {
+    const windowWithEnv = window as typeof window & {
+      __NEXT_PUBLIC_API_BASE_URL__?: string;
+    };
+    const runtimeEnv = windowWithEnv.__NEXT_PUBLIC_API_BASE_URL__;
+    if (runtimeEnv && runtimeEnv.length > 0) {
+      return runtimeEnv;
+    }
+
+    // DO NOT fallback to window.location.origin - that's wrong for API calls
+    // This was the bug - it was using the Heroku app URL instead of the backend URL
   }
 
   return DEFAULT_BASE_URL;
