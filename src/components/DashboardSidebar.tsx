@@ -113,7 +113,7 @@ export const DashboardSidebar = ({
           })}
         </nav>
 
-        <div className="mt-auto rounded-xl bg-brand-main-bg p-4 text-sm text-brand-main mb-6">
+        {/* <div className="mt-auto rounded-xl bg-brand-main-bg p-4 text-sm text-brand-main mb-6">
           <p className="font-semibold">Need insights?</p>
           <p className="mt-1 text-brand-ash">
             Generate detailed partner performance summaries with a single click.
@@ -124,7 +124,7 @@ export const DashboardSidebar = ({
           >
             View reports
           </button>
-        </div>
+        </div> */}
 
         <button
           type="button"

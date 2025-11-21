@@ -3,7 +3,7 @@ import { z } from "zod";
 export const consumerSchema = z.object({
   id: z.number(),
   account_name: z.string(),
-  phone: z.string(),
+  phone: z.string().nullable(),
   account_number: z.string(),
   account_type: z.string(),
   district: z.string(),
@@ -60,7 +60,7 @@ export const consumerTransactionSchema = z.object({
   transaction_id: z.number(),
   transaction_reference: z.string(),
   status: z.string(),
-  issuer_id: z.number(),
+  issuer_id: z.number().nullable(),
   account_number: z.string(),
   meter_number: z.string(),
   payment_type: z.string(),

@@ -424,7 +424,7 @@ const DocumentationPage: NextPageWithLayout = () => {
                             This endpoint requires a valid Partner API key. Include it in the request header:
                           </p>
                           <code className="mt-2 block text-xs font-mono bg-brand-white px-3 py-2 rounded border border-brand-border-light">
-                            Authorization: Bearer {"<"}your-api-key{">"}
+                            api-key: {"<"}your-api-key{">"}
                           </code>
                         </div>
                       </div>
