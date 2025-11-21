@@ -104,13 +104,13 @@ export const VendedTokensChart = ({
             Latest transactions with Partner
           </p>
         </div>
-        <button
+        {/* <button
           type="button"
           className="transition-fx flex items-center gap-2 rounded-lg border border-brand-border-light bg-brand-white px-3 py-2 text-xs font-medium text-brand-ash hover:border-brand-main hover:text-brand-main"
         >
           Last 12 months
           <ChevronDown className="h-3 w-3" />
-        </button>
+        </button> */}
       </div>
 
       <div className="mt-8 relative h-64">
