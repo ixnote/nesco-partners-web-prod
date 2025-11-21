@@ -51,6 +51,18 @@ export const DashboardHeader = ({
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Account Mode Indicator */}
+          {profile?.account_mode && (
+            <div
+              className={`hidden rounded-full px-3 py-1.5 text-xs font-medium md:flex ${
+                profile.account_mode === "live"
+                  ? "bg-brand-success-bg text-brand-success-text"
+                  : "bg-brand-pending-bg text-brand-pending-text"
+              }`}
+            >
+              {profile.account_mode === "live" ? "Live" : "Sandbox"}
+            </div>
+          )}
           <button
             type="button"
             onClick={() => router.push("/dashboard/notifications")}

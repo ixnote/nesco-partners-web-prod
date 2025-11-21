@@ -91,6 +91,7 @@ export const profileDataSchema = z.object({
   isActive: z.number(),
   isSuspended: z.number(),
   notification_count: z.number(),
+  account_mode: z.enum(["sandbox", "live"]),
   createdAt: z.string(),
   updatedAt: z.string(),
   deletedAt: z.string().nullable(),
@@ -112,7 +113,7 @@ export const apiKeyResponseSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   data: z.object({
-    apiKey: z.string(),
+    apiKey: z.string().nullable(),
   }),
 });
 

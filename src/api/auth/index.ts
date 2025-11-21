@@ -2,7 +2,7 @@ export { login } from "./login";
 export { requestPasswordReset } from "./passwordReset";
 export { resetPassword } from "./resetPassword";
 export { getProfile } from "./getProfile";
-export { getApiKey, generateApiKey } from "./apiKey";
+export { getApiKey, generateApiKey, getSandboxApiKey, generateSandboxApiKey } from "./apiKey";
 export { changePassword } from "./changePassword";
 export type {
   LoginRequestDTO,

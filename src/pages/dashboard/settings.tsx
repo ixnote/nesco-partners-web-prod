@@ -6,9 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { getApiKey, generateApiKey, changePassword } from "@/api/auth";
+import { getApiKey, generateApiKey, getSandboxApiKey, generateSandboxApiKey, changePassword } from "@/api/auth";
 import type { ChangePasswordRequestDTO } from "@/api/auth";
 import { changePasswordRequestSchema } from "@/api/auth/auth.schema";
+import { useProfile } from "@/contexts/ProfileContext";
 
 import type { NextPageWithLayout } from "../_app";
 
@@ -19,6 +20,7 @@ const passwordFormSchema = changePasswordRequestSchema;
 type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 const SettingsPage: NextPageWithLayout = () => {
+  const { profile } = useProfile();
   const [activeTab, setActiveTab] = React.useState<SettingsTab>("api-key");
   const [showApiKey, setShowApiKey] = React.useState(false);
   const [showOldPassword, setShowOldPassword] = React.useState(false);
@@ -26,14 +28,14 @@ const SettingsPage: NextPageWithLayout = () => {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   
   // API Key state
-  const [apiKey, setApiKey] = React.useState<string>("");
+  const [apiKey, setApiKey] = React.useState<string | null>(null);
   const [isLoadingApiKey, setIsLoadingApiKey] = React.useState(false);
   const [apiKeyError, setApiKeyError] = React.useState<string | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generateSuccess, setGenerateSuccess] = React.useState(false);
 
   // Test API Key state
-  const [testApiKey, setTestApiKey] = React.useState<string>("");
+  const [testApiKey, setTestApiKey] = React.useState<string | null>(null);
   const [showTestApiKey, setShowTestApiKey] = React.useState(false);
   const [isLoadingTestApiKey, setIsLoadingTestApiKey] = React.useState(false);
   const [testApiKeyError, setTestApiKeyError] = React.useState<string | null>(null);
@@ -76,10 +78,10 @@ const SettingsPage: NextPageWithLayout = () => {
     const result = await getApiKey(token);
 
     if (result.success) {
-      setApiKey(result.data.data.apiKey);
+      setApiKey(result.data.data.apiKey || null);
     } else {
       setApiKeyError(result.error);
-      setApiKey("");
+      setApiKey(null);
     }
 
     setIsLoadingApiKey(false);
@@ -108,7 +110,7 @@ const SettingsPage: NextPageWithLayout = () => {
     const result = await generateApiKey(token);
 
     if (result.success) {
-      setApiKey(result.data.data.apiKey);
+      setApiKey(result.data.data.apiKey || null);
       setGenerateSuccess(true);
       setTimeout(() => setGenerateSuccess(false), 3000);
     } else {
@@ -125,14 +127,13 @@ const SettingsPage: NextPageWithLayout = () => {
     setIsLoadingTestApiKey(true);
     setTestApiKeyError(null);
 
-    // For now, use the same endpoint - will be updated when actual endpoint is provided
-    const result = await getApiKey(token);
+    const result = await getSandboxApiKey(token);
 
     if (result.success) {
-      setTestApiKey(result.data.data.apiKey);
+      setTestApiKey(result.data.data.apiKey || null);
     } else {
       setTestApiKeyError(result.error);
-      setTestApiKey("");
+      setTestApiKey(null);
     }
 
     setIsLoadingTestApiKey(false);
@@ -158,11 +159,10 @@ const SettingsPage: NextPageWithLayout = () => {
     setTestApiKeyError(null);
     setGenerateTestSuccess(false);
 
-    // For now, use the same endpoint - will be updated when actual endpoint is provided
-    const result = await generateApiKey(token);
+    const result = await generateSandboxApiKey(token);
 
     if (result.success) {
-      setTestApiKey(result.data.data.apiKey);
+      setTestApiKey(result.data.data.apiKey || null);
       setGenerateTestSuccess(true);
       setTimeout(() => setGenerateTestSuccess(false), 3000);
     } else {
@@ -274,7 +274,7 @@ const SettingsPage: NextPageWithLayout = () => {
                   <div className="relative w-full max-w-2xl">
                     <input
                       type={showApiKey ? "text" : "password"}
-                      value={apiKey}
+                      value={apiKey || ""}
                       readOnly
                       placeholder={apiKey ? undefined : "No API key available"}
                       className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-20 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
@@ -294,7 +294,7 @@ const SettingsPage: NextPageWithLayout = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleCopyApiKey(apiKey)}
+                        onClick={() => apiKey && handleCopyApiKey(apiKey)}
                         disabled={!apiKey}
                         className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -306,10 +306,15 @@ const SettingsPage: NextPageWithLayout = () => {
               )}
 
               {/* Create New Key Button */}
+              {profile?.account_mode === "sandbox" && (
+                <div className="w-full max-w-2xl rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
+                  Live API keys can only be generated when your account is in live mode. Your account is currently in sandbox mode.
+                </div>
+              )}
               <button
                 type="button"
                 onClick={handleCreateNewKey}
-                disabled={isGenerating}
+                disabled={isGenerating || profile?.account_mode === "sandbox"}
                 className="mt-4 inline-flex h-12 items-center gap-2 rounded-lg bg-brand-main px-6 text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isGenerating ? (
@@ -363,7 +368,7 @@ const SettingsPage: NextPageWithLayout = () => {
                   <div className="relative w-full max-w-2xl">
                     <input
                       type={showTestApiKey ? "text" : "password"}
-                      value={testApiKey}
+                      value={testApiKey || ""}
                       readOnly
                       placeholder={testApiKey ? undefined : "No test API key available"}
                       className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-20 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
@@ -383,7 +388,7 @@ const SettingsPage: NextPageWithLayout = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => handleCopyTestApiKey(testApiKey)}
+                        onClick={() => testApiKey && handleCopyTestApiKey(testApiKey)}
                         disabled={!testApiKey}
                         className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
                       >
