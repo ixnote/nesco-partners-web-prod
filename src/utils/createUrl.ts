@@ -42,6 +42,14 @@ const getBaseUrl = () => {
   return DEFAULT_BASE_URL;
 };
 
+/**
+ * Get the base URL for API calls
+ * This can be used to display the base URL in the UI
+ */
+export const getApiBaseUrl = () => {
+  return getBaseUrl();
+};
+
 export const createUrl = (path: string, params?: QueryParams) => {
   const baseUrl = getBaseUrl();
   

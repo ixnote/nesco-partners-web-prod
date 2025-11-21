@@ -97,7 +97,7 @@ const columns: ColumnDef<CustomerTransaction>[] = [
   },
   {
     accessorKey: "account",
-    header: "Account Number",
+    header: "Meter Number",
     cell: ({ row }) => (
       <span className="font-normal text-sm text-brand-black tracking-wide capitalize">
         {row.original.account}

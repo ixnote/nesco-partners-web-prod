@@ -111,8 +111,8 @@ export const mapConsumerTransaction = (
   return {
     id: consumerTx.transaction_reference,
     name: consumerTx.customer,
-    reference: consumerTx.transaction_reference,
-    account: consumerTx.account_number,
+    reference: consumerTx.consumer.res_address1 || consumerTx.transaction_reference,
+    account: consumerTx.meter_number,
     type: `${consumerTx.kwh} kWh`,
     amount: formatAmount(consumerTx.amount),
     fee: formatAmount(consumerTx.transaction_charge.toString()),

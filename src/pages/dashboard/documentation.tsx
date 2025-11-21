@@ -1,0 +1,515 @@
+import Head from "next/head";
+import * as React from "react";
+import { BookOpen, Search, Copy, Check, AlertCircle, X } from "lucide-react";
+
+import { DashboardLayout } from "@/components/DashboardLayout";
+import { getApiBaseUrl } from "@/utils/createUrl";
+
+import type { NextPageWithLayout } from "../_app";
+
+type ApiEndpoint = {
+  id: string;
+  title: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  path: string;
+  description: string;
+  authRequired: boolean;
+  requestBody?: string;
+  responses: {
+    status: number;
+    description: string;
+    example: object;
+  }[];
+};
+
+const mockEndpoints: ApiEndpoint[] = [
+  {
+    id: "get-vending-status",
+    title: "Get Vending Status",
+    method: "GET",
+    path: "/partners/vend/status",
+    description: "Check the current vending status and system availability",
+    authRequired: true,
+    responses: [
+      {
+        status: 401,
+        description: "Unauthorized - API key missing or invalid",
+        example: {
+          success: false,
+          message: "Partner API key is required",
+        },
+      },
+      {
+        status: 200,
+        description: "Success - Vending status retrieved",
+        example: {
+          success: true,
+          message: "Vending status retrieved successfully",
+          data: {
+            status: "active",
+            // Mock response - will be updated when actual response is provided
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "get-meter-number",
+    title: "Get Meter Number",
+    method: "GET",
+    path: "/partners/vend/meter-number/{meterNumber}",
+    description: "Retrieve consumer information by meter number",
+    authRequired: true,
+    responses: [
+      {
+        status: 401,
+        description: "Unauthorized - API key missing or invalid",
+        example: {
+          success: false,
+          message: "Partner API key is required",
+        },
+      },
+      {
+        status: 404,
+        description: "Not Found - Meter number not found",
+        example: {
+          success: false,
+          message: "Meter not found",
+        },
+      },
+      {
+        status: 200,
+        description: "Success - Consumer retrieved successfully",
+        example: {
+          success: true,
+          message: "Consumer retrieved successfully",
+          data: {
+            id: 45,
+            account_name: "HARUNA I.GOBIR",
+            phone: null,
+            account_number: "PBI0045",
+            account_type: "PUB",
+            district: "BI",
+            account_type_number: null,
+            meter_type: "PREPAID",
+            postpaid_meter_number: "44130045",
+            connection_date: null,
+            prepaid_meter_number: "0101230096501",
+            long: 0,
+            lat: 0,
+            class: null,
+            category: null,
+            res_address1: "BISICHI",
+            res_address2: "",
+            res_address3: "",
+            con_address1: "BISICHI",
+            con_address2: "",
+            con_address3: "",
+            month_count: 2,
+            reading_mode: "ESTIMATED",
+            units: 0,
+            estimated_units: 0,
+            multiplying_factor: 1,
+            percentage_discount: "0.00",
+            discount_allowed: "0.00",
+            tariff: "non-md-residential-B",
+            feeder: "jantar-bisichi-feeder",
+            substation: "Lakara",
+            meter_status: "FAULTY",
+            account_status: "dormant",
+            reconciliation_active: 1,
+            createdAt: "2023-01-10T23:54:22.000Z",
+            updatedAt: "2025-10-23T16:58:36.000Z",
+            deletedAt: null,
+            outstanding_balance: "22319.71",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "issue-credit-token",
+    title: "Issue Credit Token",
+    method: "POST",
+    path: "/partners/vend/token/issue",
+    description: "Issue a credit token for a consumer meter",
+    authRequired: true,
+    requestBody: JSON.stringify(
+      {
+        meter_number: "0163213018456",
+        amount: 10000,
+        partner_refernce: "partnerRef",
+      },
+      null,
+      2
+    ),
+    responses: [
+      {
+        status: 401,
+        description: "Unauthorized - API key missing or invalid",
+        example: {
+          success: false,
+          message: "Partner API key is required",
+        },
+      },
+      {
+        status: 200,
+        description: "Success - Token issued successfully",
+        example: {
+          success: true,
+          message: "Token issued successfully",
+          data: {
+            // Mock response - will be updated when actual response is provided
+            token: "1234-5678-9012-3456-7890",
+            meter_number: "0163213018456",
+            amount: 10000,
+          },
+        },
+      },
+    ],
+  },
+];
+
+const DocumentationPage: NextPageWithLayout = () => {
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [selectedEndpoint, setSelectedEndpoint] = React.useState<ApiEndpoint | null>(
+    mockEndpoints[0]
+  );
+  const [copiedText, setCopiedText] = React.useState<string | null>(null);
+  const [baseUrl] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      return getApiBaseUrl();
+    }
+    return "";
+  });
+
+  const filteredEndpoints = React.useMemo(() => {
+    if (!searchQuery.trim()) return mockEndpoints;
+
+    const query = searchQuery.toLowerCase();
+    return mockEndpoints.filter(
+      (endpoint) =>
+        endpoint.title.toLowerCase().includes(query) ||
+        endpoint.path.toLowerCase().includes(query) ||
+        endpoint.description.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
+  const handleCopy = React.useCallback(async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedText(id);
+      setTimeout(() => setCopiedText(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, []);
+
+  const handleCloseDetail = React.useCallback(() => {
+    setSelectedEndpoint(null);
+  }, []);
+
+  const getMethodColor = (method: string) => {
+    switch (method) {
+      case "GET":
+        return "bg-brand-success-bg text-brand-success-text";
+      case "POST":
+        return "bg-brand-main-bg text-brand-main";
+      case "PUT":
+        return "bg-brand-pending-bg text-brand-pending-text";
+      case "DELETE":
+        return "bg-brand-failed-bg text-brand-failed-text";
+      default:
+        return "bg-brand-ash text-brand-white";
+    }
+  };
+
+  return (
+    <>
+      <Head>
+        <title>NESCO Partners · Documentation</title>
+      </Head>
+
+      <section className="grid gap-6 lg:grid-cols-3">
+        {/* Left Sidebar - Endpoints List */}
+        <div className="flex flex-col gap-6 min-w-0">
+          {/* Base URL Display */}
+          {baseUrl && (
+            <div className="rounded-lg border border-brand-border-light bg-brand-light-bg p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-brand-ash mb-1">Base URL</p>
+                  <code className="text-sm font-mono text-brand-black break-all">{baseUrl}</code>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(baseUrl, "base-url")}
+                  className="flex-shrink-0 p-1.5 text-brand-ash hover:text-brand-main transition-fx"
+                >
+                  {copiedText === "base-url" ? (
+                    <Check className="h-4 w-4 text-brand-success-text" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-ash" />
+            <input
+              type="text"
+              placeholder="Search documentation..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg pl-10 pr-4 text-sm text-brand-black placeholder:text-brand-ash transition focus:ring-2 focus:ring-brand-main focus:outline-none"
+            />
+          </div>
+
+          {/* Endpoints List */}
+          <div className="flex-1 space-y-2 overflow-y-auto max-h-[calc(100vh-250px)]">
+            {filteredEndpoints.map((endpoint) => {
+              const isSelected = selectedEndpoint?.id === endpoint.id;
+              return (
+                <button
+                  key={endpoint.id}
+                  type="button"
+                  onClick={() => setSelectedEndpoint(endpoint)}
+                  className={`transition-fx w-full text-left rounded-lg p-3 cursor-pointer ${
+                    isSelected
+                      ? "bg-brand-main-bg border border-brand-main"
+                      : "bg-brand-white border border-brand-border-light hover:border-brand-main hover:bg-brand-light-bg"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span
+                      className={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${getMethodColor(
+                        endpoint.method
+                      )}`}
+                    >
+                      {endpoint.method}
+                    </span>
+                    <span className="text-xs font-mono text-brand-ash truncate">
+                      {endpoint.path}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium text-brand-black">
+                    {endpoint.title}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+          {/* Right Side - Endpoint Details */}
+          <div className="flex flex-col lg:col-span-2">
+            {selectedEndpoint ? (
+              <div className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm h-fit sticky top-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-6 pb-4 border-b border-brand-border-light">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span
+                        className={`inline-flex items-center rounded px-3 py-1 text-sm font-medium ${getMethodColor(
+                          selectedEndpoint.method
+                        )}`}
+                      >
+                        {selectedEndpoint.method}
+                      </span>
+                      <code className="text-sm font-mono text-brand-black bg-brand-light-bg px-3 py-1 rounded">
+                        {selectedEndpoint.path}
+                      </code>
+                      {copiedText === `path-${selectedEndpoint.id}` ? (
+                        <Check className="h-4 w-4 text-brand-success-text" />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleCopy(selectedEndpoint.path, `path-${selectedEndpoint.id}`)
+                          }
+                          className="text-brand-ash hover:text-brand-main transition-fx"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                    <h2 className="text-xl font-semibold text-brand-black">
+                      {selectedEndpoint.title}
+                    </h2>
+                    <p className="mt-2 text-sm text-brand-ash">
+                      {selectedEndpoint.description}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCloseDetail}
+                    className="flex-shrink-0 rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx ml-4"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="space-y-6">
+
+                  {/* Path Parameters */}
+                  {selectedEndpoint.path.includes("{") && (
+                    <div>
+                      <h3 className="text-base font-semibold text-brand-black mb-3">
+                        Path Parameters
+                      </h3>
+                      <div className="rounded-lg border border-brand-border-light bg-brand-light-bg p-4 space-y-3">
+                        {selectedEndpoint.path
+                          .match(/\{([^}]+)\}/g)
+                          ?.map((param, index) => {
+                            const paramName = param.replace(/[{}]/g, "");
+                            return (
+                              <div key={index} className="flex items-start gap-3">
+                                <code className="text-sm font-mono text-brand-main bg-brand-white px-2 py-1 rounded border border-brand-border-light">
+                                  {paramName}
+                                </code>
+                                <div className="flex-1">
+                                  <p className="text-sm text-brand-black">
+                                    The {paramName.replace(/_/g, " ")} to retrieve information for
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Authentication */}
+                  {selectedEndpoint.authRequired && (
+                    <div className="rounded-lg bg-brand-main-bg p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-brand-main flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h3 className="text-sm font-semibold text-brand-black mb-1">
+                            Authentication Required
+                          </h3>
+                          <p className="text-xs text-brand-ash">
+                            This endpoint requires a valid Partner API key. Include it in the request header:
+                          </p>
+                          <code className="mt-2 block text-xs font-mono bg-brand-white px-3 py-2 rounded border border-brand-border-light">
+                            Authorization: Bearer {"<"}your-api-key{">"}
+                          </code>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Request Body (if applicable) */}
+                  {selectedEndpoint.requestBody && (
+                    <div>
+                      <h3 className="text-base font-semibold text-brand-black mb-3">
+                        Request Body
+                      </h3>
+                      <div className="relative rounded-lg border border-brand-border-light bg-brand-light-bg">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const bodyText = typeof selectedEndpoint.requestBody === 'string'
+                              ? selectedEndpoint.requestBody
+                              : JSON.stringify(selectedEndpoint.requestBody, null, 2);
+                            handleCopy(bodyText, `request-${selectedEndpoint.id}`);
+                          }}
+                          className="absolute top-3 right-3 p-2 text-brand-ash hover:text-brand-main transition-fx"
+                        >
+                          {copiedText === `request-${selectedEndpoint.id}` ? (
+                            <Check className="h-4 w-4 text-brand-success-text" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </button>
+                        <pre className="p-4 text-xs font-mono text-brand-black overflow-x-auto">
+                          {typeof selectedEndpoint.requestBody === 'string'
+                            ? selectedEndpoint.requestBody
+                            : JSON.stringify(selectedEndpoint.requestBody, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Responses */}
+                  <div>
+                    <h3 className="text-base font-semibold text-brand-black mb-3">
+                      Responses
+                    </h3>
+                    <div className="space-y-4">
+                      {selectedEndpoint.responses.map((response, index) => (
+                        <div
+                          key={index}
+                          className="rounded-lg border border-brand-border-light bg-brand-light-bg"
+                        >
+                          <div className="flex items-center justify-between p-4 border-b border-brand-border-light">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`inline-flex items-center rounded px-2 py-1 text-xs font-medium ${
+                                  response.status >= 200 && response.status < 300
+                                    ? "bg-brand-success-bg text-brand-success-text"
+                                    : response.status >= 400
+                                    ? "bg-brand-failed-bg text-brand-failed-text"
+                                    : "bg-brand-pending-bg text-brand-pending-text"
+                                }`}
+                              >
+                                {response.status}
+                              </span>
+                              <span className="text-sm text-brand-black">
+                                {response.description}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleCopy(
+                                  JSON.stringify(response.example, null, 2),
+                                  `response-${selectedEndpoint.id}-${response.status}`
+                                )
+                              }
+                              className="text-brand-ash hover:text-brand-main transition-fx"
+                            >
+                              {copiedText ===
+                              `response-${selectedEndpoint.id}-${response.status}` ? (
+                                <Check className="h-4 w-4 text-brand-success-text" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                          <div className="relative">
+                            <pre className="p-4 text-xs font-mono text-brand-black overflow-x-auto">
+                              {JSON.stringify(response.example, null, 2)}
+                            </pre>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm flex items-center justify-center h-fit sticky top-6">
+                <p className="text-sm text-brand-ash">Select an endpoint to view documentation</p>
+              </div>
+            )}
+          </div>
+      </section>
+    </>
+  );
+};
+
+DocumentationPage.getLayout = (page) => (
+  <DashboardLayout
+    heading="Documentation"
+    byText="API documentation and integration guides"
+  >
+    {page}
+  </DashboardLayout>
+);
+
+export default DocumentationPage;
+

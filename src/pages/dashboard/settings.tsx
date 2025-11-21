@@ -32,6 +32,14 @@ const SettingsPage: NextPageWithLayout = () => {
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generateSuccess, setGenerateSuccess] = React.useState(false);
 
+  // Test API Key state
+  const [testApiKey, setTestApiKey] = React.useState<string>("");
+  const [showTestApiKey, setShowTestApiKey] = React.useState(false);
+  const [isLoadingTestApiKey, setIsLoadingTestApiKey] = React.useState(false);
+  const [testApiKeyError, setTestApiKeyError] = React.useState<string | null>(null);
+  const [isGeneratingTest, setIsGeneratingTest] = React.useState(false);
+  const [generateTestSuccess, setGenerateTestSuccess] = React.useState(false);
+
   // Password change state
   const [isChangingPassword, setIsChangingPassword] = React.useState(false);
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
@@ -108,6 +116,60 @@ const SettingsPage: NextPageWithLayout = () => {
     }
 
     setIsGenerating(false);
+  }, [token]);
+
+  // Fetch Test API key when API Key tab is active
+  const fetchTestApiKey = React.useCallback(async () => {
+    if (!token || activeTab !== "api-key") return;
+
+    setIsLoadingTestApiKey(true);
+    setTestApiKeyError(null);
+
+    // For now, use the same endpoint - will be updated when actual endpoint is provided
+    const result = await getApiKey(token);
+
+    if (result.success) {
+      setTestApiKey(result.data.data.apiKey);
+    } else {
+      setTestApiKeyError(result.error);
+      setTestApiKey("");
+    }
+
+    setIsLoadingTestApiKey(false);
+  }, [token, activeTab]);
+
+  React.useEffect(() => {
+    fetchTestApiKey();
+  }, [fetchTestApiKey]);
+
+  const handleCopyTestApiKey = React.useCallback(async (key: string) => {
+    try {
+      await navigator.clipboard.writeText(key);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, []);
+
+  const handleCreateNewTestKey = React.useCallback(async () => {
+    if (!token) return;
+
+    setIsGeneratingTest(true);
+    setTestApiKeyError(null);
+    setGenerateTestSuccess(false);
+
+    // For now, use the same endpoint - will be updated when actual endpoint is provided
+    const result = await generateApiKey(token);
+
+    if (result.success) {
+      setTestApiKey(result.data.data.apiKey);
+      setGenerateTestSuccess(true);
+      setTimeout(() => setGenerateTestSuccess(false), 3000);
+    } else {
+      setTestApiKeyError(result.error);
+    }
+
+    setIsGeneratingTest(false);
   }, [token]);
 
   const handleCancel = React.useCallback(() => {
@@ -259,6 +321,95 @@ const SettingsPage: NextPageWithLayout = () => {
                   <>
                     <Plus className="h-4 w-4" />
                     Create New Key
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Test API Key Section */}
+        {activeTab === "api-key" && (
+          <div className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-brand-black">
+              Generate Test API Key
+            </h2>
+            <p className="mt-2 text-sm text-brand-ash">
+              Generate a test API key for development and testing purposes. This key can be used to test API endpoints without affecting production data.
+            </p>
+
+            <div className="mt-6 space-y-4">
+              {testApiKeyError && (
+                <div className="w-full max-w-2xl rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-600">
+                  {testApiKeyError}
+                </div>
+              )}
+
+              {generateTestSuccess && (
+                <div className="w-full max-w-2xl rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Test API key generated successfully
+                </div>
+              )}
+
+              {/* Test API Key */}
+              {isLoadingTestApiKey ? (
+                <div className="flex items-center gap-2 text-brand-ash">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm">Loading test API key...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="relative w-full max-w-2xl">
+                    <input
+                      type={showTestApiKey ? "text" : "password"}
+                      value={testApiKey}
+                      readOnly
+                      placeholder={testApiKey ? undefined : "No test API key available"}
+                      className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-20 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+                    />
+                    <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowTestApiKey(!showTestApiKey)}
+                        disabled={!testApiKey}
+                        className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {showTestApiKey ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyTestApiKey(testApiKey)}
+                        disabled={!testApiKey}
+                        className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Create New Test Key Button */}
+              <button
+                type="button"
+                onClick={handleCreateNewTestKey}
+                disabled={isGeneratingTest}
+                className="mt-4 inline-flex h-12 items-center gap-2 rounded-lg bg-brand-pending-text px-6 text-sm font-semibold text-brand-black transition hover:bg-brand-pending-text/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-pending-text disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isGeneratingTest ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    Create New Test Key
                   </>
                 )}
               </button>

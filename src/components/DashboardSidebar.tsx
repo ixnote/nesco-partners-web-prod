@@ -2,6 +2,7 @@ import Link from "next/link";
 import * as React from "react";
 import {
   BellIcon,
+  BookOpen,
   HeadsetIcon,
   LayoutDashboard,
   LogOutIcon,
@@ -23,6 +24,7 @@ const navigationLinks = [
   { name: "Partners", href: "/dashboard/partners", icon: Users, adminOnly: true },
   { name: "Support", href: "/dashboard/support", icon: HeadsetIcon },
   { name: "Notifications", href: "/dashboard/notifications", icon: BellIcon },
+  { name: "Documentation", href: "/dashboard/documentation", icon: BookOpen },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
