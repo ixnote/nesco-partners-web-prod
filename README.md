@@ -2,7 +2,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-First, run the development server:
+### Environment Variables
+
+Create a `.env.local` file in the root directory and add:
+
+```bash
+NEXT_PUBLIC_API_BASE_URL=https://ae996252bfce.ngrok-free.app/api/v1
+```
+
+### Running the Development Server
 
 ```bash
 npm run dev

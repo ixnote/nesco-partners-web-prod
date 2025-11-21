@@ -1,128 +1,422 @@
 import Head from "next/head";
+import * as React from "react";
+import { Eye, EyeOff, Copy, Plus, Loader2, CheckCircle2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { getApiKey, generateApiKey, changePassword } from "@/api/auth";
+import type { ChangePasswordRequestDTO } from "@/api/auth";
+import { changePasswordRequestSchema } from "@/api/auth/auth.schema";
 
 import type { NextPageWithLayout } from "../_app";
 
-const preferenceSections = [
-  {
-    title: "Profile Information",
-    description: "Manage your administrator identity and contact details.",
-    fields: [
-      { label: "Full Name", value: "Admin User" },
-      { label: "Email Address", value: "admin@nesco.com" },
-      { label: "Phone Number", value: "+234 700 000 0000" },
-    ],
-  },
-  {
-    title: "Security",
-    description: "Keep your account secure with authentication controls.",
-    fields: [
-      { label: "Last Password Change", value: "Sep 18, 2025" },
-      { label: "Two-Factor Authentication", value: "Enabled" },
-      { label: "Login Alerts", value: "Via Email" },
-    ],
-  },
-];
+type SettingsTab = "api-key" | "password";
 
-const notificationPreferences = [
-  { label: "Partner activity summary", value: "Daily" },
-  { label: "High value alerts", value: "Instant" },
-  { label: "Monthly performance report", value: "Enabled" },
-];
+const passwordFormSchema = changePasswordRequestSchema;
+
+type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 const SettingsPage: NextPageWithLayout = () => {
+  const [activeTab, setActiveTab] = React.useState<SettingsTab>("api-key");
+  const [showApiKey, setShowApiKey] = React.useState(false);
+  const [showOldPassword, setShowOldPassword] = React.useState(false);
+  const [showNewPassword, setShowNewPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  
+  // API Key state
+  const [apiKey, setApiKey] = React.useState<string>("");
+  const [isLoadingApiKey, setIsLoadingApiKey] = React.useState(false);
+  const [apiKeyError, setApiKeyError] = React.useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [generateSuccess, setGenerateSuccess] = React.useState(false);
+
+  // Password change state
+  const [isChangingPassword, setIsChangingPassword] = React.useState(false);
+  const [passwordError, setPasswordError] = React.useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = React.useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    },
+  });
+
+  const token = React.useMemo(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("authToken");
+    }
+    return null;
+  }, []);
+
+  // Fetch API key when API Key tab is active
+  const fetchApiKey = React.useCallback(async () => {
+    if (!token || activeTab !== "api-key") return;
+
+    setIsLoadingApiKey(true);
+    setApiKeyError(null);
+
+    const result = await getApiKey(token);
+
+    if (result.success) {
+      setApiKey(result.data.data.apiKey);
+    } else {
+      setApiKeyError(result.error);
+      setApiKey("");
+    }
+
+    setIsLoadingApiKey(false);
+  }, [token, activeTab]);
+
+  React.useEffect(() => {
+    fetchApiKey();
+  }, [fetchApiKey]);
+
+  const handleCopyApiKey = React.useCallback(async (key: string) => {
+    try {
+      await navigator.clipboard.writeText(key);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, []);
+
+  const handleCreateNewKey = React.useCallback(async () => {
+    if (!token) return;
+
+    setIsGenerating(true);
+    setApiKeyError(null);
+    setGenerateSuccess(false);
+
+    const result = await generateApiKey(token);
+
+    if (result.success) {
+      setApiKey(result.data.data.apiKey);
+      setGenerateSuccess(true);
+      setTimeout(() => setGenerateSuccess(false), 3000);
+    } else {
+      setApiKeyError(result.error);
+    }
+
+    setIsGenerating(false);
+  }, [token]);
+
+  const handleCancel = React.useCallback(() => {
+    reset();
+    setPasswordError(null);
+    setPasswordSuccess(false);
+  }, [reset]);
+
+  const handleUpdatePassword = handleSubmit(async (values: PasswordFormValues) => {
+    if (!token) return;
+
+    setIsChangingPassword(true);
+    setPasswordError(null);
+    setPasswordSuccess(false);
+
+    const result = await changePassword(token, values);
+
+    if (result.success) {
+      setPasswordSuccess(true);
+      reset();
+      setTimeout(() => setPasswordSuccess(false), 3000);
+    } else {
+      setPasswordError(result.error);
+    }
+
+    setIsChangingPassword(false);
+  });
+
   return (
     <>
       <Head>
         <title>NESCO Partners · Settings</title>
       </Head>
 
-      <section className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="space-y-6">
-          {preferenceSections.map((section) => (
-            <div
-              key={section.title}
-              className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm"
-            >
-              <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-brand-black">
-                    {section.title}
-                  </h2>
-                  <p className="text-sm text-brand-ash">
-                    {section.description}
-                  </p>
-                </div>
+      <section className="space-y-6">
+        {/* Tabs */}
+        <div className="flex items-center gap-6 border-b border-brand-border-light">
+          <button
+            type="button"
+            onClick={() => setActiveTab("api-key")}
+            className={`transition-fx relative flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-medium ${
+              activeTab === "api-key"
+                ? "text-brand-main"
+                : "text-brand-ash hover:text-brand-black"
+            }`}
+          >
+            <span>API Key</span>
+            {activeTab === "api-key" && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-main" />
+            )}
+          </button>
                 <button
                   type="button"
-                  className="transition-fx inline-flex items-center rounded-lg border border-brand-border-light px-4 py-2 text-sm font-medium text-brand-ash hover:border-brand-main hover:text-brand-main"
-                >
-                  Edit
+            onClick={() => setActiveTab("password")}
+            className={`transition-fx relative flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-medium ${
+              activeTab === "password"
+                ? "text-brand-main"
+                : "text-brand-ash hover:text-brand-black"
+            }`}
+          >
+            <span>Password</span>
+            {activeTab === "password" && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-main" />
+            )}
                 </button>
-              </header>
-
-              <dl className="mt-6 space-y-4 text-sm text-brand-black">
-                {section.fields.map((field) => (
-                  <div
-                    key={field.label}
-                    className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <dt className="text-brand-ash">{field.label}</dt>
-                    <dd className="font-medium">{field.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          ))}
         </div>
 
-        <aside className="space-y-6">
+        {/* API Key Tab Content */}
+        {activeTab === "api-key" && (
           <div className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm">
-            <h3 className="text-base font-semibold text-brand-black">
-              Notification Preferences
-            </h3>
+            <h2 className="text-lg font-semibold text-brand-black">
+              Generate API Key
+            </h2>
             <p className="mt-2 text-sm text-brand-ash">
-              Choose how frequently you receive updates.
+              Do not share this key with any one. If you suspect any of your key
+              has been compromised, then you should delete your key create a new
+              one and update your code.
             </p>
 
-            <ul className="mt-4 space-y-3 text-sm text-brand-black">
-              {notificationPreferences.map((preference) => (
-                <li
-                  key={preference.label}
-                  className="transition-fx flex items-center justify-between rounded-lg border border-brand-border-light px-4 py-3 hover:border-brand-main hover:text-brand-main"
-                >
-                  <span>{preference.label}</span>
-                  <span className="text-brand-ash">{preference.value}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
+            <div className="mt-6 space-y-4">
+              {apiKeyError && (
+                <div className="w-full max-w-2xl rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-600">
+                  {apiKeyError}
+                </div>
+              )}
 
-          <div className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm">
-            <h3 className="text-base font-semibold text-brand-black">
-              Danger Zone
-            </h3>
-            <p className="mt-2 text-sm text-brand-ash">
-              Deactivate integrations or remove access when required.
-            </p>
+              {generateSuccess && (
+                <div className="w-full max-w-2xl rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  API key generated successfully
+                </div>
+              )}
 
-            <div className="mt-4 space-y-3">
+              {/* API Key */}
+              {isLoadingApiKey ? (
+                <div className="flex items-center gap-2 text-brand-ash">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span className="text-sm">Loading API key...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <div className="relative w-full max-w-2xl">
+                    <input
+                      type={showApiKey ? "text" : "password"}
+                      value={apiKey}
+                      readOnly
+                      placeholder={apiKey ? undefined : "No API key available"}
+                      className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-20 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+                    />
+                    <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                        disabled={!apiKey}
+                        className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {showApiKey ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyApiKey(apiKey)}
+                        disabled={!apiKey}
+                        className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Create New Key Button */}
               <button
                 type="button"
-                className="transition-fx w-full rounded-lg bg-brand-failed-bg px-4 py-2 text-sm font-semibold text-brand-failed-text hover:bg-brand-failed-text hover:text-brand-white"
+                onClick={handleCreateNewKey}
+                disabled={isGenerating}
+                className="mt-4 inline-flex h-12 items-center gap-2 rounded-lg bg-brand-main px-6 text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
               >
-                Disable Partner API Access
-              </button>
-              <button
-                type="button"
-                className="transition-fx w-full rounded-lg border border-brand-border-light px-4 py-2 text-sm font-medium text-brand-ash hover:border-brand-main hover:text-brand-main"
-              >
-                Remove Device Sessions
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-4 w-4" />
+                    Create New Key
+                  </>
+                )}
               </button>
             </div>
           </div>
-        </aside>
+        )}
+
+        {/* Password Tab Content */}
+        {activeTab === "password" && (
+          <div className="rounded-2xl border border-brand-border-light bg-brand-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-brand-black">
+              Change Password
+            </h2>
+            <p className="mt-2 text-sm text-brand-ash">
+              Please enter your current password to change your password
+            </p>
+
+            <form onSubmit={handleUpdatePassword} className="mt-6 space-y-4">
+              {passwordError && (
+                <div className="w-full max-w-2xl rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-600">
+                  {passwordError}
+                </div>
+              )}
+
+              {passwordSuccess && (
+                <div className="w-full max-w-2xl rounded-lg bg-green-50 border border-green-200 p-3 text-sm text-green-700 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Password changed successfully
+                </div>
+              )}
+
+              {/* Current Password */}
+              <div className="flex flex-col gap-2 w-full max-w-2xl">
+                <label
+                  htmlFor="currentPassword"
+                  className="text-sm font-medium text-brand-black"
+                >
+                  Old Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="currentPassword"
+                    type={showOldPassword ? "text" : "password"}
+                    placeholder="Enter old password"
+                    className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-10 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+                    {...register("currentPassword")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowOldPassword(!showOldPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx"
+                  >
+                    {showOldPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.currentPassword && (
+                  <p className="text-xs text-rose-400">{errors.currentPassword.message}</p>
+                )}
+              </div>
+
+              {/* New Password */}
+              <div className="flex flex-col gap-2 w-full max-w-2xl">
+                <label
+                  htmlFor="newPassword"
+                  className="text-sm font-medium text-brand-black"
+                >
+                  New Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="newPassword"
+                    type={showNewPassword ? "text" : "password"}
+                    placeholder="Enter new password"
+                    className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-10 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+                    {...register("newPassword")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword(!showNewPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx"
+                  >
+                    {showNewPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.newPassword && (
+                  <p className="text-xs text-rose-400">{errors.newPassword.message}</p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="flex flex-col gap-2 w-full max-w-2xl">
+                <label
+                  htmlFor="confirmPassword"
+                  className="text-sm font-medium text-brand-black"
+                >
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm new password"
+                    className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-10 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+                    {...register("confirmPassword")}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-xs text-rose-400">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={isChangingPassword}
+                  className="h-12 rounded-lg border border-brand-border-light bg-brand-white px-6 text-sm font-medium text-brand-ash transition hover:border-brand-main hover:text-brand-main focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isChangingPassword}
+                  className="h-12 inline-flex items-center gap-2 rounded-lg bg-brand-main px-6 text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isChangingPassword ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Updating...
+                    </>
+                  ) : (
+                    "Update"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </section>
     </>
   );
@@ -131,7 +425,7 @@ const SettingsPage: NextPageWithLayout = () => {
 SettingsPage.getLayout = (page) => (
   <DashboardLayout
     heading="Settings"
-    byText="Adjust administrator preferences and security controls."
+    byText="Manage account settings and preferences."
   >
     {page}
   </DashboardLayout>

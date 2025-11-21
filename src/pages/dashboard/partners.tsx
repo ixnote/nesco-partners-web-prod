@@ -1,6 +1,7 @@
 import Head from "next/head";
 import * as React from "react";
 import { Plus, Search } from "lucide-react";
+import { useRouter } from "next/router";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { PartnersTable } from "@/components/PartnersTable";
@@ -11,15 +12,25 @@ import {
 } from "@/components/StatusFilterDropdown";
 import type { PartnerStatus } from "@/components/PartnersTable";
 import { partners } from "@/api/partners/partners.mock";
+import { useProfile } from "@/contexts/ProfileContext";
 
 import type { NextPageWithLayout } from "../_app";
 
 const PartnersPage: NextPageWithLayout = () => {
+  const router = useRouter();
+  const { profile } = useProfile();
   const [statusFilter, setStatusFilter] = React.useState<"all" | PartnerStatus>(
     "all"
   );
   const [isNewPartnerModalOpen, setIsNewPartnerModalOpen] =
     React.useState(false);
+
+  // Redirect partners away from this page
+  React.useEffect(() => {
+    if (profile && profile.role === "partner") {
+      router.replace("/dashboard");
+    }
+  }, [profile, router]);
 
   const filteredPartners = React.useMemo(() => {
     if (statusFilter === "all") {

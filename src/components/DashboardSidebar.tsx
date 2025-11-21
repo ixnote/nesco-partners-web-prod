@@ -10,6 +10,8 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "next/router";
+import { useProfile } from "@/contexts/ProfileContext";
+import { logout } from "@/utils/auth";
 
 const navigationLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -18,7 +20,7 @@ const navigationLinks = [
     href: "/dashboard/transactions",
     icon: ReceiptTextIcon,
   },
-  { name: "Partners", href: "/dashboard/partners", icon: Users },
+  { name: "Partners", href: "/dashboard/partners", icon: Users, adminOnly: true },
   { name: "Support", href: "/dashboard/support", icon: HeadsetIcon },
   { name: "Notifications", href: "/dashboard/notifications", icon: BellIcon },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -37,6 +39,19 @@ export const DashboardSidebar = ({
 }: DashboardSidebarProps) => {
   const router = useRouter();
   const currentPath = router.pathname;
+  const { profile } = useProfile();
+
+  // Filter navigation links based on user role
+  const filteredLinks = React.useMemo(() => {
+    if (!profile) return navigationLinks;
+    
+    // Hide Partners tab for 'partner' role
+    if (profile.role === "partner") {
+      return navigationLinks.filter((link) => !link.adminOnly);
+    }
+    
+    return navigationLinks;
+  }, [profile]);
 
   return (
     <>
@@ -64,7 +79,7 @@ export const DashboardSidebar = ({
         </div>
 
         <nav className="flex flex-col gap-3 items-center justify-center">
-          {navigationLinks.map((link) => {
+          {filteredLinks.map((link) => {
             const isActive = currentPath === link.href;
 
             return (
@@ -112,7 +127,7 @@ export const DashboardSidebar = ({
           type="button"
           className="transition-fx group w-full flex items-center justify-center rounded-lg px-4 py-3 text-brand-ash hover:bg-brand-failed-bg hover:text-brand-failed-text"
           onClick={() => {
-            router.push("/auth/login");
+            logout();
           }}
         >
           <span className="flex items-center gap-4">

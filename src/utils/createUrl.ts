@@ -1,4 +1,4 @@
-const DEFAULT_BASE_URL = "http://localhost:3000";
+const DEFAULT_BASE_URL = "https://ae996252bfce.ngrok-free.app/api/v1";
 
 type QueryValue = string | number | boolean | null | undefined;
 
@@ -18,7 +18,14 @@ const getBaseUrl = () => {
 
 export const createUrl = (path: string, params?: QueryParams) => {
   const baseUrl = getBaseUrl();
-  const url = new URL(path, baseUrl);
+  
+  // Remove leading slash from path if present to avoid replacing the base URL path
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Ensure baseUrl ends with / for proper URL joining
+  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
+  
+  const url = new URL(cleanPath, normalizedBase);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {

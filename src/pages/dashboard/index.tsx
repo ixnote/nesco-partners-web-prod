@@ -8,14 +8,17 @@ import { StatsCard } from "@/components/StatsCard";
 import { VendedTokensChart } from "@/components/VendedTokensChart";
 import { RecentTransactionsTable } from "@/components/RecentTransactionsTable";
 import { partnerTransactions } from "@/api/transactions/transactions.mock";
+import { useProfile } from "@/contexts/ProfileContext";
 
 import type { NextPageWithLayout } from "../_app";
 
 const DashboardPage: NextPageWithLayout = () => {
   const router = useRouter();
   const [showBalance, setShowBalance] = React.useState(true);
+  const { profile } = useProfile();
 
   const recentTransactions = partnerTransactions.slice(0, 1);
+  const walletBalance = profile?.wallet.balance || "0.00";
 
   const stats = [
     {
@@ -55,11 +58,11 @@ const DashboardPage: NextPageWithLayout = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-medium text-brand-ash">
-                Token Balance (kWh)
+                Wallet Balance (₦)
               </p>
               <div className="mt-2 flex items-center gap-3">
                 <h2 className="text-3xl font-bold text-brand-black">
-                  {showBalance ? "52,600.40 kWh" : "•••••••"}
+                  {showBalance ? `₦${walletBalance}` : "•••••••"}
                 </h2>
                 <button
                   type="button"

@@ -15,10 +15,13 @@ export type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export type LoginFormProps = {
   onSubmit?: (values: LoginFormValues) => Promise<void> | void;
+  error?: string | null;
+  isLoading?: boolean;
 };
 
-export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const loading = isLoading || isSubmitting;
 
   const {
     register,
@@ -61,6 +64,12 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       </header>
 
       <div className="w-full flex flex-col items-center justify-center gap-10">
+        {error && (
+          <div className="w-full rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-600">
+            {error}
+          </div>
+        )}
+
         <fieldset className="w-full flex flex-col gap-2">
           <Label.Root
             className="text-sm font-medium text-brand-black"
@@ -99,15 +108,22 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
           {errors.password ? (
             <p className="text-xs text-rose-400">{errors.password.message}</p>
           ) : null}
+          <Link
+            href="/auth/forgot-password"
+            className="text-xs text-brand-main hover:underline self-end -mt-1"
+          >
+            Forgot password?
+          </Link>
         </fieldset>
 
-        <Link
-          href="/dashboard"
-          className="inline-flex h-12 w-full items-center justify-center rounded-lg bg-brand-main text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
+        <button
+          type="submit"
+          disabled={loading}
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-main text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isSubmitting ? "Logging in..." : "Log in"}
-          {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-        </Link>
+          {loading ? "Logging in..." : "Log in"}
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+        </button>
       </div>
 
       <footer className="w-full flex flex-col items-center justify-center gap-2 text-sm text-brand-ash font-normal lg:flex-row lg:text-base">
