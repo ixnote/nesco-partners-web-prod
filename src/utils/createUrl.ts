@@ -1,4 +1,5 @@
-const DEFAULT_BASE_URL = "https://ae996252bfce.ngrok-free.app/api/v1";
+// const DEFAULT_BASE_URL = "https://ae996252bfce.ngrok-free.app/api/v1";
+const DEFAULT_BASE_URL = "https://sandbox-api.nesconigeria.com/api/v1";
 
 type QueryValue = string | number | boolean | null | undefined;
 
@@ -10,7 +11,7 @@ type QueryParams = Record<string, QueryValue | QueryValue[]>;
  * 1. NEXT_PUBLIC_API_BASE_URL from process.env (build-time)
  * 2. Runtime injected value from window (for Heroku)
  * 3. DEFAULT_BASE_URL (fallback)
- * 
+ *
  * Note: In Next.js, NEXT_PUBLIC_* env vars are embedded at BUILD time.
  * If not set during build, we need runtime injection via _document.tsx
  */
@@ -52,13 +53,13 @@ export const getApiBaseUrl = () => {
 
 export const createUrl = (path: string, params?: QueryParams) => {
   const baseUrl = getBaseUrl();
-  
+
   // Remove leading slash from path if present to avoid replacing the base URL path
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+
   // Ensure baseUrl ends with / for proper URL joining
-  const normalizedBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  
+  const normalizedBase = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+
   const url = new URL(cleanPath, normalizedBase);
 
   if (params) {
@@ -84,5 +85,3 @@ export const createUrl = (path: string, params?: QueryParams) => {
 
   return url.toString();
 };
-
-
