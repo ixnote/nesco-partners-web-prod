@@ -45,14 +45,14 @@ export const partnerSchema = z.object({
   name: z.string(),
   email: z.string(),
   phone: z.string(),
-  device_token: z.string().nullable(),
-  role: z.string(),
+  device_token: z.string().nullable().optional(),
+  role: z.string().optional(),
   isActive: z.boolean(),
   isSuspended: z.boolean(),
-  notification_count: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  deletedAt: z.string().nullable(),
+  notification_count: z.number().optional(),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
+  deletedAt: z.string().nullable().optional(),
 });
 
 export const consumerTransactionSchema = z.object({
@@ -105,6 +105,9 @@ export const consumerTransactionsResponseSchema = z.object({
 export type ConsumerDTO = z.infer<typeof consumerSchema>;
 export type PartnerDTO = z.infer<typeof partnerSchema>;
 export type ConsumerTransactionDTO = z.infer<typeof consumerTransactionSchema>;
-export type ConsumerTransactionsPaginationDTO = z.infer<typeof consumerTransactionsPaginationSchema>;
-export type ConsumerTransactionsResponseDTO = z.infer<typeof consumerTransactionsResponseSchema>;
-
+export type ConsumerTransactionsPaginationDTO = z.infer<
+  typeof consumerTransactionsPaginationSchema
+>;
+export type ConsumerTransactionsResponseDTO = z.infer<
+  typeof consumerTransactionsResponseSchema
+>;
