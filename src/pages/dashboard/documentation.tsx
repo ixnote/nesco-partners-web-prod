@@ -234,7 +234,7 @@ const mockEndpoints: ApiEndpoint[] = [
     method: "GET",
     path: "/partners/vend/wallet-transactions",
     description:
-      "Retrieve paginated wallet transaction history with optional filtering by type (credit/debit). Query parameters: ?page=1&pageSize=10&type=credit (type is optional: 'credit' or 'debit')",
+      "Retrieve paginated wallet transaction history with optional filtering by type (credit/debit), date range(startDate & endDate). Query parameters: ?page=1&pageSize=10&type=credit&startDate=2025-11-01&endDate=2025-11-30. (type is optional: 'credit' or 'debit')",
     authRequired: true,
     responses: [
       {
