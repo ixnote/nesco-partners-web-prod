@@ -116,8 +116,7 @@ export const generateApiKey = async (token: string): Promise<ApiKeyResult> => {
 };
 
 // Sandbox/Test API Key functions
-// const SANDBOX_API_KEY_ROUTE = "/partners/settings/api-key/sandbox";
-const SANDBOX_API_KEY_ROUTE = "/partners/settings/api-key/live";
+const SANDBOX_API_KEY_ROUTE = "/partners/settings/api-key/sandbox";
 
 export const getSandboxApiKey = async (
   token: string
