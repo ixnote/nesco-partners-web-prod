@@ -1,5 +1,6 @@
 // const DEFAULT_BASE_URL = "https://ae996252bfce.ngrok-free.app/api/v1";
-const DEFAULT_BASE_URL = "https://sandbox-api.nesconigeria.com/api/v1";
+// const DEFAULT_BASE_URL = "https://sandbox-api.nesconigeria.com/api/v1";
+const DEFAULT_BASE_URL = "https://-api.nesconigeria.com/api/v1";
 
 type QueryValue = string | number | boolean | null | undefined;
 

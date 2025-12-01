@@ -5,7 +5,7 @@ import { apiKeyResponseSchema } from "./auth.schema";
 
 const API_KEY_ROUTE = "/partners/settings/api-key";
 
-type ApiKeyResult = 
+type ApiKeyResult =
   | { success: true; data: ApiKeyResponseDTO }
   | { success: false; error: string };
 
@@ -17,7 +17,7 @@ export const getApiKey = async (token: string): Promise<ApiKeyResult> => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
       },
     });
@@ -26,12 +26,14 @@ export const getApiKey = async (token: string): Promise<ApiKeyResult> => {
       const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        error: errorData.message || `Failed to fetch API key: ${response.statusText}`,
+        error:
+          errorData.message ||
+          `Failed to fetch API key: ${response.statusText}`,
       };
     }
 
     const payload = await response.json();
-    
+
     // Wrap Zod parsing in try-catch to handle schema validation errors
     try {
       const parsed = apiKeyResponseSchema.parse(payload);
@@ -51,10 +53,11 @@ export const getApiKey = async (token: string): Promise<ApiKeyResult> => {
         error: "Network error: Unable to connect to server",
       };
     }
-    
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 };
@@ -67,7 +70,7 @@ export const generateApiKey = async (token: string): Promise<ApiKeyResult> => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
       },
     });
@@ -76,12 +79,14 @@ export const generateApiKey = async (token: string): Promise<ApiKeyResult> => {
       const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        error: errorData.message || `Failed to generate API key: ${response.statusText}`,
+        error:
+          errorData.message ||
+          `Failed to generate API key: ${response.statusText}`,
       };
     }
 
     const payload = await response.json();
-    
+
     // Wrap Zod parsing in try-catch to handle schema validation errors
     try {
       const parsed = apiKeyResponseSchema.parse(payload);
@@ -101,18 +106,22 @@ export const generateApiKey = async (token: string): Promise<ApiKeyResult> => {
         error: "Network error: Unable to connect to server",
       };
     }
-    
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 };
 
 // Sandbox/Test API Key functions
-const SANDBOX_API_KEY_ROUTE = "/partners/settings/api-key/sandbox";
+// const SANDBOX_API_KEY_ROUTE = "/partners/settings/api-key/sandbox";
+const SANDBOX_API_KEY_ROUTE = "/partners/settings/api-key/live";
 
-export const getSandboxApiKey = async (token: string): Promise<ApiKeyResult> => {
+export const getSandboxApiKey = async (
+  token: string
+): Promise<ApiKeyResult> => {
   try {
     const url = createUrl(SANDBOX_API_KEY_ROUTE);
 
@@ -120,7 +129,7 @@ export const getSandboxApiKey = async (token: string): Promise<ApiKeyResult> => 
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
       },
     });
@@ -129,12 +138,14 @@ export const getSandboxApiKey = async (token: string): Promise<ApiKeyResult> => 
       const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        error: errorData.message || `Failed to fetch sandbox API key: ${response.statusText}`,
+        error:
+          errorData.message ||
+          `Failed to fetch sandbox API key: ${response.statusText}`,
       };
     }
 
     const payload = await response.json();
-    
+
     // Wrap Zod parsing in try-catch to handle schema validation errors
     try {
       const parsed = apiKeyResponseSchema.parse(payload);
@@ -154,15 +165,18 @@ export const getSandboxApiKey = async (token: string): Promise<ApiKeyResult> => 
         error: "Network error: Unable to connect to server",
       };
     }
-    
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 };
 
-export const generateSandboxApiKey = async (token: string): Promise<ApiKeyResult> => {
+export const generateSandboxApiKey = async (
+  token: string
+): Promise<ApiKeyResult> => {
   try {
     const url = createUrl(SANDBOX_API_KEY_ROUTE);
 
@@ -170,7 +184,7 @@ export const generateSandboxApiKey = async (token: string): Promise<ApiKeyResult
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         "ngrok-skip-browser-warning": "true",
       },
     });
@@ -179,12 +193,14 @@ export const generateSandboxApiKey = async (token: string): Promise<ApiKeyResult
       const errorData = await response.json().catch(() => ({}));
       return {
         success: false,
-        error: errorData.message || `Failed to generate sandbox API key: ${response.statusText}`,
+        error:
+          errorData.message ||
+          `Failed to generate sandbox API key: ${response.statusText}`,
       };
     }
 
     const payload = await response.json();
-    
+
     // Wrap Zod parsing in try-catch to handle schema validation errors
     try {
       const parsed = apiKeyResponseSchema.parse(payload);
@@ -204,11 +220,11 @@ export const generateSandboxApiKey = async (token: string): Promise<ApiKeyResult
         error: "Network error: Unable to connect to server",
       };
     }
-    
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      error:
+        error instanceof Error ? error.message : "An unexpected error occurred",
     };
   }
 };
-
