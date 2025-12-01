@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import loginImage from "@/assets/login.jpg";
+import logoImage from "@/assets/logo.png";
 
 const loginFormSchema = z.object({
   email: z.string().email("Enter a valid email address."),
@@ -45,99 +48,125 @@ export const LoginForm = ({ onSubmit, error, isLoading }: LoginFormProps) => {
   });
 
   return (
-    <form
-      onSubmit={handleFormSubmit}
-      className="w-full max-w-xl flex flex-col items-center justify-center gap-10 rounded-2xl bg-brand-white p-8 shadow-xl shadow-slate-950/40 backdrop-blur"
-    >
-      <header className="flex flex-col items-center justify-center gap-5">
-        <h1 className="text-4xl font-bold text-brand-main p-2 rounded-lg lg:text-5xl">
-          NESCO
-        </h1>
-        <span className="flex flex-col items-center justify-center">
-          <h2 className="text-xl font-bold text-brand-black p-2 rounded-lg lg:text-2xl">
-            Welcome Back!
-          </h2>
-          <h3 className="text-sm text-brand-ash font-normal -mt-2 lg:text-base">
-            Log in to continue
-          </h3>
-        </span>
-      </header>
-
-      <div className="w-full flex flex-col items-center justify-center gap-10">
-        {error && (
-          <div className="w-full rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-600">
-            {error}
-          </div>
-        )}
-
-        <fieldset className="w-full flex flex-col gap-2">
-          <Label.Root
-            className="text-sm font-medium text-brand-black"
-            htmlFor="email"
-          >
-            Business Email
-          </Label.Root>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
-            {...register("email")}
+    <div className="w-full max-w-6xl flex flex-col lg:flex-row items-stretch justify-center gap-8 lg:gap-12">
+      {/* Login Image */}
+      <div className="hidden lg:flex flex-1 items-center justify-end">
+        <div className="relative w-full max-w-lg h-full rounded-2xl overflow-hidden shadow-xl">
+          <Image
+            src={loginImage}
+            alt="Login illustration"
+            fill
+            className="object-cover"
+            priority
           />
-          {errors.email ? (
-            <p className="text-xs text-rose-400">{errors.email.message}</p>
-          ) : null}
-        </fieldset>
-
-        <fieldset className="w-full flex flex-col gap-2">
-          <Label.Root
-            className="text-sm font-medium text-brand-black"
-            htmlFor="password"
-          >
-            Password
-          </Label.Root>
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="Enter your password"
-            className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
-            {...register("password")}
-          />
-          {errors.password ? (
-            <p className="text-xs text-rose-400">{errors.password.message}</p>
-          ) : null}
-          <Link
-            href="/auth/forgot-password"
-            className="text-xs text-brand-main hover:underline self-end -mt-1"
-          >
-            Forgot password?
-          </Link>
-        </fieldset>
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-main text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          {loading ? "Logging in..." : "Log in"}
-          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        </button>
+        </div>
       </div>
 
-      <footer className="w-full flex flex-col items-center justify-center gap-2 text-sm text-brand-ash font-normal lg:flex-row lg:text-base">
-        By continuing you agree to our{" "}
-        <span>
-          <Link href="/terms" className="text-brand-main hover:underline">
-            Terms of Service
-          </Link>{" "}
-          and{" "}
-          <Link href="/privacy" className="text-brand-main hover:underline">
-            Privacy Policy
-          </Link>
-        </span>
-      </footer>
-    </form>
+      {/* Login Form */}
+      <form
+        onSubmit={handleFormSubmit}
+        className="w-full max-w-xl flex flex-col items-center justify-center gap-10 rounded-2xl bg-brand-white p-8 shadow-xl shadow-slate-950/40 backdrop-blur"
+      >
+        <header className="flex flex-col items-center justify-center gap-5">
+          <div className="flex items-center justify-center gap-3">
+            <Image
+              src={logoImage}
+              alt="NESCO Logo"
+              width={48}
+              height={48}
+              className="object-contain"
+              priority
+            />
+            <h1 className="text-4xl font-bold text-brand-main p-2 rounded-lg lg:text-5xl">
+              NESCO
+            </h1>
+          </div>
+          <span className="flex flex-col items-center justify-center">
+            <h2 className="text-xl font-bold text-brand-black p-2 rounded-lg lg:text-2xl">
+              Welcome Back!
+            </h2>
+            <h3 className="text-sm text-brand-ash font-normal -mt-2 lg:text-base">
+              Log in to continue
+            </h3>
+          </span>
+        </header>
+
+        <div className="w-full flex flex-col items-center justify-center gap-10">
+          {error && (
+            <div className="w-full rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-600">
+              {error}
+            </div>
+          )}
+
+          <fieldset className="w-full flex flex-col gap-2">
+            <Label.Root
+              className="text-sm font-medium text-brand-black"
+              htmlFor="email"
+            >
+              Business Email
+            </Label.Root>
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+              {...register("email")}
+            />
+            {errors.email ? (
+              <p className="text-xs text-rose-400">{errors.email.message}</p>
+            ) : null}
+          </fieldset>
+
+          <fieldset className="w-full flex flex-col gap-2">
+            <Label.Root
+              className="text-sm font-medium text-brand-black"
+              htmlFor="password"
+            >
+              Password
+            </Label.Root>
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Enter your password"
+              className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
+              {...register("password")}
+            />
+            {errors.password ? (
+              <p className="text-xs text-rose-400">{errors.password.message}</p>
+            ) : null}
+            <Link
+              href="/auth/forgot-password"
+              className="text-xs text-brand-main hover:underline self-end -mt-1"
+            >
+              Forgot password?
+            </Link>
+          </fieldset>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-main text-sm font-semibold text-brand-white transition hover:bg-brand-main/80 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-main disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {loading ? "Logging in..." : "Log in"}
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+          </button>
+        </div>
+
+        <footer className="w-full flex flex-col items-center justify-center gap-2 text-sm text-brand-ash font-normal lg:flex-row lg:text-base">
+          By continuing you agree to our{" "}
+          <span>
+            <Link href="#" className="text-brand-main hover:underline">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="#" className="text-brand-main hover:underline">
+              Privacy Policy
+            </Link>
+          </span>
+        </footer>
+      </form>
+    </div>
   );
 };

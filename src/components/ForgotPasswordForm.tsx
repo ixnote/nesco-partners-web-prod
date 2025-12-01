@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Link from "next/link";
 import { Loader2, ArrowLeft, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
+import logoImage from "@/assets/logo.png";
 
 const forgotPasswordFormSchema = z.object({
   email: z.string().email("Enter a valid email address."),
@@ -56,9 +58,19 @@ export const ForgotPasswordForm = ({
       className="w-full max-w-xl flex flex-col items-center justify-center gap-10 rounded-2xl bg-brand-white p-8 shadow-xl shadow-slate-950/40 backdrop-blur"
     >
       <header className="flex flex-col items-center justify-center gap-5">
-        <h1 className="text-4xl font-bold text-brand-main p-2 rounded-lg lg:text-5xl">
-          NESCO
-        </h1>
+        <div className="flex items-center justify-center gap-3">
+          <Image
+            src={logoImage}
+            alt="NESCO Logo"
+            width={48}
+            height={48}
+            className="object-contain"
+            priority
+          />
+          <h1 className="text-4xl font-bold text-brand-main p-2 rounded-lg lg:text-5xl">
+            NESCO
+          </h1>
+        </div>
         <span className="flex flex-col items-center justify-center text-center">
           <h2 className="text-xl font-bold text-brand-black p-2 rounded-lg lg:text-2xl">
             Forgot Password?
@@ -74,7 +86,8 @@ export const ForgotPasswordForm = ({
           <div className="w-full rounded-lg bg-green-50 border border-green-200 p-4 flex flex-col items-center justify-center gap-3">
             <CheckCircle2 className="w-12 h-12 text-green-600" />
             <p className="text-sm text-green-700 text-center">
-              {successMessage || "Password reset OTP has been sent to your email and phone."}
+              {successMessage ||
+                "Password reset OTP has been sent to your email and phone."}
             </p>
             <p className="text-xs text-green-600 text-center">
               The OTP expires in 30 minutes.
@@ -137,11 +150,11 @@ export const ForgotPasswordForm = ({
       <footer className="w-full flex flex-col items-center justify-center gap-2 text-sm text-brand-ash font-normal lg:flex-row lg:text-base">
         By continuing you agree to our{" "}
         <span>
-          <Link href="/terms" className="text-brand-main hover:underline">
+          <Link href="#" className="text-brand-main hover:underline">
             Terms of Service
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" className="text-brand-main hover:underline">
+          <Link href="#" className="text-brand-main hover:underline">
             Privacy Policy
           </Link>
         </span>
@@ -149,4 +162,3 @@ export const ForgotPasswordForm = ({
     </form>
   );
 };
-

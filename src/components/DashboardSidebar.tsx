@@ -11,8 +11,10 @@ import {
   Users,
 } from "lucide-react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import { useProfile } from "@/contexts/ProfileContext";
 import { logout } from "@/utils/auth";
+import logoImage from "@/assets/logo.png";
 
 const navigationLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
@@ -21,7 +23,12 @@ const navigationLinks = [
     href: "/dashboard/transactions",
     icon: ReceiptTextIcon,
   },
-  { name: "Partners", href: "/dashboard/partners", icon: Users, adminOnly: true },
+  {
+    name: "Partners",
+    href: "/dashboard/partners",
+    icon: Users,
+    adminOnly: true,
+  },
   // { name: "Support", href: "/dashboard/support", icon: HeadsetIcon },
   { name: "Support", href: "#", icon: HeadsetIcon },
   { name: "Notifications", href: "/dashboard/notifications", icon: BellIcon },
@@ -47,12 +54,12 @@ export const DashboardSidebar = ({
   // Filter navigation links based on user role
   const filteredLinks = React.useMemo(() => {
     if (!profile) return navigationLinks;
-    
+
     // Hide Partners tab for 'partner' role
     if (profile.role === "partner") {
       return navigationLinks.filter((link) => !link.adminOnly);
     }
-    
+
     return navigationLinks;
   }, [profile]);
 
@@ -67,9 +74,19 @@ export const DashboardSidebar = ({
       >
         <div className="w-full mb-8 flex items-center justify-between">
           <div className="w-full flex items-center justify-center">
-            <span className="text-xl font-bold text-brand-main p-2 rounded-lg lg:text-2xl">
-              NESCO
-            </span>
+            <div className="flex items-center justify-center gap-3">
+              <Image
+                src={logoImage}
+                alt="NESCO Logo"
+                width={32}
+                height={32}
+                className="object-contain"
+                priority
+              />
+              <span className="text-xl font-bold text-brand-main p-2 rounded-lg lg:text-2xl">
+                NESCO
+              </span>
+            </div>
           </div>
 
           <button
@@ -113,8 +130,7 @@ export const DashboardSidebar = ({
           })}
         </nav>
 
-        <div className="mt-auto rounded-xl p-4 text-sm text-brand-main mb-6">
-        </div>
+        <div className="mt-auto rounded-xl p-4 text-sm text-brand-main mb-6"></div>
 
         {/* <div className="mt-auto rounded-xl bg-brand-main-bg p-4 text-sm text-brand-main mb-6">
           <p className="font-semibold">Need insights?</p>

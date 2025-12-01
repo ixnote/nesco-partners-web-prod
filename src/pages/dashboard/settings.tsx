@@ -6,7 +6,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
-import { getApiKey, generateApiKey, getSandboxApiKey, generateSandboxApiKey, changePassword } from "@/api/auth";
+import {
+  getApiKey,
+  generateApiKey,
+  getSandboxApiKey,
+  generateSandboxApiKey,
+  changePassword,
+} from "@/api/auth";
 import type { ChangePasswordRequestDTO } from "@/api/auth";
 import { changePasswordRequestSchema } from "@/api/auth/auth.schema";
 import { useProfile } from "@/contexts/ProfileContext";
@@ -26,7 +32,7 @@ const SettingsPage: NextPageWithLayout = () => {
   const [showOldPassword, setShowOldPassword] = React.useState(false);
   const [showNewPassword, setShowNewPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  
+
   // API Key state
   const [apiKey, setApiKey] = React.useState<string | null>(null);
   const [isLoadingApiKey, setIsLoadingApiKey] = React.useState(false);
@@ -38,7 +44,9 @@ const SettingsPage: NextPageWithLayout = () => {
   const [testApiKey, setTestApiKey] = React.useState<string | null>(null);
   const [showTestApiKey, setShowTestApiKey] = React.useState(false);
   const [isLoadingTestApiKey, setIsLoadingTestApiKey] = React.useState(false);
-  const [testApiKeyError, setTestApiKeyError] = React.useState<string | null>(null);
+  const [testApiKeyError, setTestApiKeyError] = React.useState<string | null>(
+    null
+  );
   const [isGeneratingTest, setIsGeneratingTest] = React.useState(false);
   const [generateTestSuccess, setGenerateTestSuccess] = React.useState(false);
 
@@ -178,25 +186,27 @@ const SettingsPage: NextPageWithLayout = () => {
     setPasswordSuccess(false);
   }, [reset]);
 
-  const handleUpdatePassword = handleSubmit(async (values: PasswordFormValues) => {
-    if (!token) return;
+  const handleUpdatePassword = handleSubmit(
+    async (values: PasswordFormValues) => {
+      if (!token) return;
 
-    setIsChangingPassword(true);
-    setPasswordError(null);
-    setPasswordSuccess(false);
+      setIsChangingPassword(true);
+      setPasswordError(null);
+      setPasswordSuccess(false);
 
-    const result = await changePassword(token, values);
+      const result = await changePassword(token, values);
 
-    if (result.success) {
-      setPasswordSuccess(true);
-      reset();
-      setTimeout(() => setPasswordSuccess(false), 3000);
-    } else {
-      setPasswordError(result.error);
+      if (result.success) {
+        setPasswordSuccess(true);
+        reset();
+        setTimeout(() => setPasswordSuccess(false), 3000);
+      } else {
+        setPasswordError(result.error);
+      }
+
+      setIsChangingPassword(false);
     }
-
-    setIsChangingPassword(false);
-  });
+  );
 
   return (
     <>
@@ -221,8 +231,8 @@ const SettingsPage: NextPageWithLayout = () => {
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-main" />
             )}
           </button>
-                <button
-                  type="button"
+          <button
+            type="button"
             onClick={() => setActiveTab("password")}
             className={`transition-fx relative flex cursor-pointer items-center gap-2 px-4 py-3 text-sm font-medium ${
               activeTab === "password"
@@ -234,7 +244,7 @@ const SettingsPage: NextPageWithLayout = () => {
             {activeTab === "password" && (
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-main" />
             )}
-                </button>
+          </button>
         </div>
 
         {/* API Key Tab Content */}
@@ -308,7 +318,8 @@ const SettingsPage: NextPageWithLayout = () => {
               {/* Create New Key Button */}
               {profile?.account_mode === "sandbox" && (
                 <div className="w-full max-w-2xl rounded-lg bg-yellow-50 border border-yellow-200 p-3 text-sm text-yellow-800">
-                  Live API keys can only be generated when your account is in live mode. Your account is currently in sandbox mode.
+                  Live API keys can only be generated when your account is in
+                  live mode. Your account is currently in sandbox mode.
                 </div>
               )}
               <button
@@ -340,7 +351,9 @@ const SettingsPage: NextPageWithLayout = () => {
               Generate Test API Key
             </h2>
             <p className="mt-2 text-sm text-brand-ash">
-              Generate a test API key for development and testing purposes. This key can be used to test API endpoints without affecting production data.
+              Generate a test API key for development and testing purposes. This
+              key can be used to test API endpoints without affecting production
+              data.
             </p>
 
             <div className="mt-6 space-y-4">
@@ -370,7 +383,9 @@ const SettingsPage: NextPageWithLayout = () => {
                       type={showTestApiKey ? "text" : "password"}
                       value={testApiKey || ""}
                       readOnly
-                      placeholder={testApiKey ? undefined : "No test API key available"}
+                      placeholder={
+                        testApiKey ? undefined : "No test API key available"
+                      }
                       className="h-12 w-full rounded-lg border-[0.3px] border-brand-border-light bg-brand-light-bg px-3 pr-20 text-sm text-brand-black transition focus:ring-2 focus:ring-brand-main"
                     />
                     <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
@@ -388,7 +403,9 @@ const SettingsPage: NextPageWithLayout = () => {
                       </button>
                       <button
                         type="button"
-                        onClick={() => testApiKey && handleCopyTestApiKey(testApiKey)}
+                        onClick={() =>
+                          testApiKey && handleCopyTestApiKey(testApiKey)
+                        }
                         disabled={!testApiKey}
                         className="rounded-lg p-1.5 text-brand-ash hover:bg-brand-light-bg hover:text-brand-black transition-fx disabled:opacity-50 disabled:cursor-not-allowed"
                       >
@@ -400,10 +417,21 @@ const SettingsPage: NextPageWithLayout = () => {
               )}
 
               {/* Create New Test Key Button */}
+              {profile?.account_mode === "live" && (
+                <div className="w-full max-w-2xl rounded-lg bg-amber-50 border border-amber-200 p-4 text-sm text-amber-800">
+                  <p className="font-medium mb-1">
+                    Test keys cannot be created in a production environment.
+                  </p>
+                  <p className="text-amber-700">
+                    Switch to sandbox mode to create and use test keys for
+                    development and testing purposes.
+                  </p>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={handleCreateNewTestKey}
-                disabled={isGeneratingTest}
+                disabled={isGeneratingTest || profile?.account_mode === "live"}
                 className="mt-4 inline-flex h-12 items-center gap-2 rounded-lg bg-brand-pending-text px-6 text-sm font-semibold text-brand-black transition hover:bg-brand-pending-text/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-pending-text disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isGeneratingTest ? (
@@ -475,7 +503,9 @@ const SettingsPage: NextPageWithLayout = () => {
                   </button>
                 </div>
                 {errors.currentPassword && (
-                  <p className="text-xs text-rose-400">{errors.currentPassword.message}</p>
+                  <p className="text-xs text-rose-400">
+                    {errors.currentPassword.message}
+                  </p>
                 )}
               </div>
 
@@ -508,7 +538,9 @@ const SettingsPage: NextPageWithLayout = () => {
                   </button>
                 </div>
                 {errors.newPassword && (
-                  <p className="text-xs text-rose-400">{errors.newPassword.message}</p>
+                  <p className="text-xs text-rose-400">
+                    {errors.newPassword.message}
+                  </p>
                 )}
               </div>
 
@@ -541,7 +573,9 @@ const SettingsPage: NextPageWithLayout = () => {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-xs text-rose-400">{errors.confirmPassword.message}</p>
+                  <p className="text-xs text-rose-400">
+                    {errors.confirmPassword.message}
+                  </p>
                 )}
               </div>
 
